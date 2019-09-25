@@ -43,7 +43,8 @@ public class UserController {
         return iUserService.register(user);
     }
 
-    @RequestMapping(value = "checkVaild")
+    @RequestMapping(value = "checkVaild", method = RequestMethod.POST)
+    @ResponseBody
     public ServerResponse<String> checkVaild(String str, String type){
         return iUserService.checkVaild(str, type);
     }

@@ -6,6 +6,7 @@ import com.gmall.dao.UserMapper;
 import com.gmall.pojo.User;
 import com.gmall.service.IUserService;
 import com.gmall.util.MD5Util;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -36,14 +37,7 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     public ServerResponse<String> register(User user){
-        int resultCount = userMapper.checkUsername(user.getUsername());
-        if (resultCount > 0 ){
-            return ServerResponse.createByErrorMessage("用户名已存在");
-        }
-        resultCount = userMapper.checkEmail(user.getEmail());
-        if (resultCount > 0 ){
-            return ServerResponse.createByErrorMessage("邮箱已注册");
-        }
+        ServerResponse vaildResponse = this.checkVaild(user.getEmail(), Const.Email);
         //设置用户身份是普通用户
         user.setRole(Const.Role.ROLE_CUSTOMER);
 
@@ -59,8 +53,28 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     public ServerResponse<String> checkVaild(String str, String type){
-
-        return ServerResponse.createBySuccessMessage("123");
+        if(StringUtils.isNoneBlank(str)){
+            if (type.equals(Const.Email)){
+                int resultCount = userMapper.checkEmail(str);
+                if (resultCount > 0 ){
+                    return ServerResponse.createByErrorMessage("邮箱已注册");
+                }
+            }
+            if (type.equals(Const.USERNAME)){
+                int resultCount = userMapper.checkUsername(str);
+                if (resultCount > 0 ){
+                    return ServerResponse.createByErrorMessage("用户名已存在");
+                }
+            }
+            return ServerResponse.createBySuccessMessage("校验通过");
+        }else {
+            if (type.equals(Const.Email)){
+                return ServerResponse.createByErrorMessage("邮箱不能为空");
+            }
+            if (type.equals(Const.USERNAME)){
+                return ServerResponse.createByErrorMessage("用户名不能为空");
+            }
+            return ServerResponse.createByErrorMessage("参数错误");
+        }
     }
-
 }
