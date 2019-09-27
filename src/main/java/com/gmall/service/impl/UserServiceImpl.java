@@ -2,6 +2,7 @@ package com.gmall.service.impl;
 
 import com.gmall.common.Const;
 import com.gmall.common.ServerResponse;
+import com.gmall.common.TokenCache;
 import com.gmall.dao.UserMapper;
 import com.gmall.pojo.User;
 import com.gmall.service.IUserService;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpSession;
+import java.util.UUID;
 
 @Service("iUserService")
 public class UserServiceImpl implements IUserService {
@@ -83,7 +85,5 @@ public class UserServiceImpl implements IUserService {
             return ServerResponse.createByErrorMessage("参数错误");
         }
     }
-
-
 
 }
