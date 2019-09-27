@@ -49,4 +49,12 @@ public class UserController {
         return iUserService.checkVaild(str, type);
     }
 
+    @RequestMapping(value = "getUserInfo", method = RequestMethod.POST)
+    @ResponseBody
+    public ServerResponse<User> getUserInfo(HttpSession session){
+        User user = (User)session.getAttribute(Const.CURRENT_USER);
+        if (user == null) return ServerResponse.createByErrorMessage("获取用户信息失败");
+        return ServerResponse.createBySuccess(user);
+    }
+
 }

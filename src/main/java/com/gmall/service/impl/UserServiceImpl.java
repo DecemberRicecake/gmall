@@ -10,6 +10,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpSession;
+
 @Service("iUserService")
 public class UserServiceImpl implements IUserService {
 
@@ -38,13 +40,17 @@ public class UserServiceImpl implements IUserService {
     @Override
     public ServerResponse<String> register(User user){
         ServerResponse vaildResponse = this.checkVaild(user.getEmail(), Const.Email);
+        if (!vaildResponse.isSuccess()) return vaildResponse;
+        vaildResponse = this.checkVaild(user.getUsername(), Const.USERNAME);
+        if (!vaildResponse.isSuccess()) return vaildResponse;
+
         //设置用户身份是普通用户
         user.setRole(Const.Role.ROLE_CUSTOMER);
 
         //MD5加密
         user.setPassword(MD5Util.MD5EncodeUtf8(user.getPassword()));
 
-        resultCount = userMapper.insert(user);
+        int resultCount = userMapper.insert(user);
         if (resultCount == 0){
             return ServerResponse.createByErrorMessage("注册失败");
         }
@@ -77,4 +83,7 @@ public class UserServiceImpl implements IUserService {
             return ServerResponse.createByErrorMessage("参数错误");
         }
     }
+
+
+
 }
