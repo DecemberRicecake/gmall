@@ -1,8 +1,7 @@
 package com.gmall.util;
 
-import org.springframework.util.StringUtils;
-
 import java.security.MessageDigest;
+import static com.gmall.util.PropertiesUtil.*;
 
 /**
  * Created by jiajia
@@ -48,6 +47,8 @@ public class MD5Util {
     }
 
     public static String MD5EncodeUtf8(String origin) {
+        //MD5加盐
+//        origin = origin + PropertiesUtil.getProperty("password.salt");
         return MD5Encode(origin, "utf-8");
     }
 

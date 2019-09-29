@@ -2,7 +2,6 @@ package com.gmall.service.impl;
 
 import com.gmall.common.Const;
 import com.gmall.common.ServerResponse;
-import com.gmall.common.TokenCache;
 import com.gmall.dao.UserMapper;
 import com.gmall.pojo.User;
 import com.gmall.service.IUserService;
@@ -10,9 +9,6 @@ import com.gmall.util.MD5Util;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import javax.servlet.http.HttpSession;
-import java.util.UUID;
 
 @Service("iUserService")
 public class UserServiceImpl implements IUserService {
@@ -86,4 +82,37 @@ public class UserServiceImpl implements IUserService {
         }
     }
 
+    @Override
+    public ServerResponse<String> resetPassword(User user, String oldPassword, String newPassword) {
+        //防止横向越权，所以要校验旧的密码
+        int resultCount = userMapper.checkPassword(user.getId(), MD5Util.MD5EncodeUtf8(oldPassword));
+        if (resultCount == 1){
+            int updateResult = userMapper.resetPassword(user.getId(),MD5Util.MD5EncodeUtf8(newPassword));
+            if (updateResult == 1) return ServerResponse.createBySuccessMessage("密码更新成功");
+        }
+        return ServerResponse.createByErrorMessage("密码更新失败");
+    }
+
+    @Override
+    public ServerResponse<User> updateUserInfo(User user) {
+        //用户名不能更新，邮箱更新值不能和别人的一样
+        int resultCount = userMapper.checkEmailByUserId(user.getId(), user.getEmail());
+        if(resultCount == 0){
+            //更新
+            User updateUser = new User();
+            updateUser.setEmail(user.getEmail());
+            updateUser.setPhone(user.getPhone());
+            userMapper.updateByPrimaryKeySelective(updateUser);
+            return ServerResponse.createBySuccessMessage("用户信息已更新");
+        }
+        return ServerResponse.createByErrorMessage("邮箱已存在, 更新失败");
+    }
+
+    @Override
+    public ServerResponse<User> getUserInfo(Integer userId) {
+        User user = userMapper.selectByPrimaryKey(userId);
+        if(user == null) return ServerResponse.createByErrorMessage("找不到用户信息");
+        user.setPassword(StringUtils.EMPTY);
+        return ServerResponse.createBySuccess(user);
+    }
 }

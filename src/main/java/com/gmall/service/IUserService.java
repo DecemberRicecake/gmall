@@ -12,5 +12,9 @@ public interface IUserService {
 
     ServerResponse<String> checkVaild(String str, String type);
 
+    ServerResponse<String> resetPassword(User user, String oldPassword, String newPassword);
 
+    ServerResponse<User> updateUserInfo(User user);
+
+    ServerResponse<User> getUserInfo(Integer userId);
 }

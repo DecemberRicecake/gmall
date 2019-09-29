@@ -1,6 +1,7 @@
-package com.gmall.controller;
+package com.gmall.controller.frontend;
 
 import com.gmall.common.Const;
+import com.gmall.common.ResponseCode;
 import com.gmall.common.ServerResponse;
 import com.gmall.pojo.User;
 import com.gmall.service.IUserService;
@@ -30,7 +31,7 @@ public class UserController {
         return response;
     }
 
-    @RequestMapping(value = "logout", method = RequestMethod.GET)
+    @RequestMapping(value = "logout", method = RequestMethod.POST)
     @ResponseBody
     public ServerResponse<String> logout(HttpSession session){
         session.removeAttribute(Const.CURRENT_USER);
@@ -49,12 +50,31 @@ public class UserController {
         return iUserService.checkVaild(str, type);
     }
 
+    @RequestMapping(value = "resetPassword", method = RequestMethod.POST)
+    @ResponseBody
+    public ServerResponse<String> resetPassword(HttpSession session, String oldPassword, String newPassword){
+        User user = (User)session.getAttribute(Const.CURRENT_USER);
+        if (user == null) return ServerResponse.createByErrorMessage("用户未登录");
+        return iUserService.resetPassword(user, oldPassword, newPassword);
+    }
+
+    @RequestMapping(value = "updateUserInfo", method = RequestMethod.POST)
+    @ResponseBody
+    public ServerResponse<User> updateUserInfo(HttpSession session, User user){
+        User currentUser = (User)session.getAttribute(Const.CURRENT_USER);
+        if (currentUser == null) return ServerResponse.createByErrorMessage("用户未登录");
+        user.setId(currentUser.getId());
+        user.setUsername(currentUser.getUsername());
+        ServerResponse<User> response = iUserService.updateUserInfo(user);
+        if (response.isSuccess()) session.setAttribute(Const.CURRENT_USER, user);
+        return response;
+    }
+
     @RequestMapping(value = "getUserInfo", method = RequestMethod.POST)
     @ResponseBody
     public ServerResponse<User> getUserInfo(HttpSession session){
-        User user = (User)session.getAttribute(Const.CURRENT_USER);
-        if (user == null) return ServerResponse.createByErrorMessage("获取用户信息失败");
-        return ServerResponse.createBySuccess(user);
+        User currentUser = (User)session.getAttribute(Const.CURRENT_USER);
+        if (currentUser == null) return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), "需要强制登录");
+        return iUserService.getUserInfo(currentUser.getId());
     }
-
 }
