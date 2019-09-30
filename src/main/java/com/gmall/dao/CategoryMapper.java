@@ -2,6 +2,8 @@ package com.gmall.dao;
 
 import com.gmall.pojo.Category;
 
+import java.util.List;
+
 public interface CategoryMapper {
     int deleteByPrimaryKey(Integer id);
 
@@ -14,4 +16,8 @@ public interface CategoryMapper {
     int updateByPrimaryKeySelective(Category record);
 
     int updateByPrimaryKey(Category record);
+
+    int checkRepeatCategoryName(String categoryName);
+
+    List<Category> selectChildCategoryByParentId(Integer parentId);
 }
